@@ -282,9 +282,9 @@
         <div class="header">
             <h1 class="invoice-title">INVOICE</h1>
             <div class="invoice-number">
-                <strong contenteditable="true">INV-2026-001</strong>
-                <span>Date: </span><span contenteditable="true">Feb 6, 2026</span><br>
-                <span>Due Date: </span><span contenteditable="true">Feb 13, 2026</span>
+                <strong contenteditable="true" data-field="inv-number">INV-2026-001</strong>
+                <span>Date: </span><span contenteditable="true" data-field="inv-date">Feb 6, 2026</span><br>
+                <span>Due Date: </span><span contenteditable="true" data-field="inv-due-date">Feb 13, 2026</span>
             </div>
         </div>
 
@@ -292,13 +292,13 @@
         <div class="info-grid">
             <div class="info-block">
                 <label>From</label>
-                <p class="name" contenteditable="true">Muhamad Taufik</p>
-                <p contenteditable="true">devmuhamadtaufik@gmail.com</p>
+                <p class="name" contenteditable="true" data-field="from-name">Muhamad Taufik</p>
+                <p contenteditable="true" data-field="from-email">devmuhamadtaufik@gmail.com</p>
             </div>
             <div class="info-block" style="text-align: right;">
                 <label>Bill To</label>
-                <p class="name" contenteditable="true">PT Page Persona</p>
-                <p contenteditable="true">Jakarta, Indonesia</p>
+                <p class="name" contenteditable="true" data-field="to-name">PT PERSONA DIGITAL KREATIF</p>
+                <p contenteditable="true" data-field="to-address">Jakarta, Indonesia</p>
             </div>
         </div>
 
@@ -313,10 +313,10 @@
             <tbody>
                 <tr>
                     <td>
-                        <div class="item-name" contenteditable="true">Website Development Services</div>
-                        <div class="item-desc" contenteditable="true">Period: January 2026</div>
+                        <div class="item-name" contenteditable="true" data-field="item-name">Website Development Services</div>
+                        <div class="item-desc" contenteditable="true" data-field="item-desc">Period: January 2026</div>
                     </td>
-                    <td contenteditable="true">Rp 10,000,000</td>
+                    <td contenteditable="true" data-field="item-amount">Rp 10,000,000</td>
                 </tr>
             </tbody>
         </table>
@@ -325,28 +325,75 @@
         <div class="total-section">
             <div class="total-row final">
                 <span>Total</span>
-                <span contenteditable="true">Rp 10,000,000</span>
+                <span contenteditable="true" data-field="total-amount">Rp 10,000,000</span>
             </div>
         </div>
 
         <!-- Payment -->
         <div class="payment">
             <label>Payment Details</label>
-            <div class="bank" contenteditable="true">Bank Rakyat Indonesia (BRI)</div>
-            <div class="account" contenteditable="true">4035 0104 8676 533</div>
-            <div contenteditable="true">Account Name: MUHAMAD TAUFIK</div>
+            <div class="bank" contenteditable="true" data-field="bank-name">Bank Rakyat Indonesia (BRI)</div>
+            <div class="account" contenteditable="true" data-field="bank-account">4035 0104 8676 533</div>
+            <div contenteditable="true" data-field="bank-holder">Account Name: MUHAMAD TAUFIK</div>
         </div>
 
         <!-- Footer -->
-        <div class="footer" contenteditable="true">
+        <div class="footer" contenteditable="true" data-field="footer-text">
             Thank you for your business.
         </div>
     </div>
 
     <div class="actions no-print">
-        <button class="btn reset" onclick="location.reload()">↺ Reset</button>
+        <button class="btn reset" onclick="resetInvoice()">↺ Reset</button>
         <button class="btn" onclick="window.print()">🖨️ Print</button>
     </div>
+
+    <script>
+        const STORAGE_KEY = 'invoice-data';
+
+        // Load saved data from localStorage
+        function loadFromStorage() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (!saved) return;
+
+            try {
+                const data = JSON.parse(saved);
+                document.querySelectorAll('[data-field]').forEach(el => {
+                    const key = el.getAttribute('data-field');
+                    if (data[key] !== undefined) {
+                        el.innerHTML = data[key];
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to load invoice data:', e);
+            }
+        }
+
+        // Save all editable fields to localStorage
+        function saveToStorage() {
+            const data = {};
+            document.querySelectorAll('[data-field]').forEach(el => {
+                data[el.getAttribute('data-field')] = el.innerHTML;
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        // Reset: clear localStorage and reload
+        function resetInvoice() {
+            if (confirm('Reset semua perubahan ke default?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        // Auto-save on every edit
+        document.querySelectorAll('[data-field]').forEach(el => {
+            el.addEventListener('input', saveToStorage);
+        });
+
+        // Load on page ready
+        loadFromStorage();
+    </script>
 </body>
 
 </html>
